@@ -13,7 +13,10 @@ thread_local! {
 
     static TICK_CLOSURE: Closure<dyn FnMut()> = Closure::wrap(Box::new({
         let game = GAME.with(|game| game.clone());
-        move || game.borrow_mut().tick()
+        move || {
+            game.borrow_mut().tick();
+            render();
+        }
     }) as Box<dyn FnMut()>);
 }
 
@@ -55,14 +58,25 @@ pub fn render() {
 
     root_container
         .style()
-        .set_property("display", "grid")
+        .set_property("display", "inline-grid")
         .unwrap_throw();
+
     root_container
         .style()
         .set_property(
             "grid-template",
             &format!("repeat({}, auto) / repeat({}, auto)", height, width),
         )
+        .unwrap_throw();
+
+    root_container
+        .style()
+        .set_property("grid-column-gap", "30px")
+        .unwrap_throw();
+
+    root_container
+        .style()
+        .set_property("grid-row-gap", "5px")
         .unwrap_throw();
 
     for y in 0..height {
